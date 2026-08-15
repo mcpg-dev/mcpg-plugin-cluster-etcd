@@ -1,0 +1,44 @@
+[package]
+name = "mcpg-plugin-cluster-etcd"
+version = "0.1.0-alpha.15"
+license = "BUSL-1.1"
+edition = "2024"
+description = "etcd cluster_backend plugin for MCPG gateway (dev.mcpg.cluster.etcd)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+mcpg-plugin-protocol = { git = "https://github.com/mcpg-dev/mcpg-plugin-protocol", tag = "v0.1.0-beta.13", version = "=0.1.0-beta.13" }
+mcpg-cluster-api = { git = "https://github.com/mcpg-dev/mcpg-cluster-api", tag = "v0.1.0-beta.13", version = "=0.1.0-beta.13" }
+mcpg-plugin-sdk = { git = "https://github.com/mcpg-dev/mcpg-plugin-sdk", tag = "v0.1.0-beta.13", version = "=0.1.0-beta.13", features = ["cluster-forward"] }
+async-trait = "0.1"
+bytes = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+etcd-client = { version = "0.16", default-features = false, features = ["tls", "tls-roots"] }
+futures-core = { version = "0.3", default-features = false, features = ["std"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+tokio-stream = "0.1"
+tracing = "0.1"
+
+[dev-dependencies]
+
+testcontainers = { version = "0.27", features = ["blocking"] }
+
+[features]
+default = ["cdylib-export"]
+cdylib-export = []
+# Gates the testcontainers-backed equivalence test. Off by default
+# so `cargo test` without flags doesn't pull docker.
+integration-tests = []
+# Declared so the SDK's `declare_plugin!` `register_static` function
+# (gated `#[cfg(feature = "static-firstparty")]`) does not trigger
+# `unexpected_cfgs` in consumer compilation. Empty: `cluster_backend`
+# has no static-firstparty path today — the `__mcpg_dispatch_register_static!`
+# arm for it emits `compile_error!` — so enabling this feature is
+# intentionally unsupported on cluster plugins until
+# `FirstPartyRegistrar::register_cluster_backend_with_alias` is added.
+static-firstparty = []

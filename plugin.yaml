@@ -1,0 +1,21 @@
+schema: mcpg.dev/plugin/v1
+id: dev.mcpg.cluster.etcd
+name: etcd Cluster Coordinator
+license: BUSL-1.1
+description: |
+  etcd-backed cluster plugin. Implements the pub/sub
+  + peer-discovery surface — sufficient for MCPG's cluster needs
+  (cluster-coordinated credential cache, bundle-reload events,
+  approval-resolution pub/sub) — plus lease ops (acquire_leadership
+  / acquire_lock + renew / release) via etcd's native lease grant +
+  lock, and watch_peers via an etcd Watch on the peers/ prefix.
+  Pub/sub via etcd Watch streams (durable + replayable within the
+  retention window — stronger than Consul's gossip events).
+class: cluster
+runtime: native-cdylib-v1
+protocol_version: "1.0"
+required_capabilities:
+  - network_outbound
+provides:
+  - bus
+  - kv
